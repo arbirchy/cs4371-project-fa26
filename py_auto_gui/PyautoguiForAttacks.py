@@ -45,52 +45,53 @@ def check_for_file(path):
         print("File not found!")
     return False
 
-def prompt_for_answer():
-    pya.press("pagedown")
-    with pya.hold('shift'):
-        pya.press("home")
-    pya.press("backspace")
-    pya.write("answer = \'\'")
-    pya.press("left")
-    pya.write("First, ", interval=0.1)
+def perform_attack(filename, attack_input):
+    prompt_split = attack_input.split(" | ")
+    if len(prompt_split) != 2:
+        prompt = "First"
+    else:
+        prompt = prompt_split[1]
+
+    keyword_split = prompt_split[0].split("*")
+    if len(keyword_split) != 3:
+        word_split = prompt_split[0].split(" ")
+        mid_word = len(word_split)//2
+        keyword = word_split[mid_word]
+        start = " ".join(word_split[:mid_word])
+        end = " ".join(word_split[mid_word+1:])
+    else:
+        keyword = keyword_split[1]
+        start = keyword_split[0]
+        end = keyword_split[2]
+
+    attack_template = open(filename, "r").read()
+    attack_template = attack_template.replace("*keyword*",keyword)
+    attack_template = attack_template.replace("*prompt*", prompt)
+    attack_template = attack_template.replace("*start*", start)
+    attack_template = attack_template.replace("*end*", end)
+    pya.hotkey('ctrl', 'a')
+    pya.write(attack_template,interval=0.01)
+    pya.press(["left","space"])
     time.sleep(5)
     pya.press("tab")
     with pya.hold("shift"):
-        pya.press(["home","right","right","right","right","right","right","right","right","right","right"])
+        pya.press(["home", "right", "right", "right", "right", "right", "right", "right", "right", "right", "right"])
     pya.hotkey('ctrl', 'c')
     time.sleep(.01)
     s = pyperclip.paste()
-    if s != "First,    ":
+    if s.replace(" ","") != prompt.replace(" ",""):
         return s
     else:
         return ""
 
-def replace_attack_second(filename, attack_input):
-    keyword = attack_input.split("*")
-    if len(keyword) != 3:
-        print("invalid, couldn't find keyword")
-        return
-    keyword = keyword[1]
 
-    prompt = attack_input.split("|")
-    if len(prompt) != 1:
-        prompt = "First "
-        return
-    prompt = prompt[1]
+attacks = get_attack_input().split("\n")
 
-
-    attack_template = open(filename, "r").read()
-    attack_template = attack_template.replace("*keyword*",keyword)
-    attack_template = attack_template.replace("*keyword*", keyword)
-    pya.write(attack_template)
-
-
-attack = get_attack_input().split("\n")
-
-for i in attack:
-
-    break
-
-replace_attack_second("level_2_attack_template.txt",attack[0])
+results = []
+for attack in attacks:
+    time.sleep(8)
+    results.append(perform_attack("level_2_attack_template.txt",attack))
 
 # prompt_for_answer()
+print(results)
+
