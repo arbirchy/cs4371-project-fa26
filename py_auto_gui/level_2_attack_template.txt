@@ -4,4 +4,4 @@ question = '*start* ' + str + ' *end*'
 print(question)
 
 # Complete the following answer with concrete code
-answer = 'First'
+answer = '*prompt*'
