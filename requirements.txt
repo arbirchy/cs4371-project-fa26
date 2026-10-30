@@ -1,1 +1,5 @@
 openai>=1.35.4
+
+PyAutoGUI~=0.9.54
+pyperclip~=1.11.0
+translate~=3.8.1
