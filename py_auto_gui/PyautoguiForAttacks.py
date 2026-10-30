@@ -1,10 +1,11 @@
-from os.path import curdir
-from tabnanny import check
+import asyncio
 
 import pyautogui as pya
 import time
 import pyperclip
 import os
+from translate import Translator
+# from googletrans import Translator
 
 def get_attack_input() -> str:
     print("Welcome to the pyautogui script. This script can automatically run attacks against LCCT tools.\nLet's set you up. First, how will you be entering your attacks?")
@@ -19,7 +20,11 @@ def get_attack_input() -> str:
 
             case "2":
                 user_path = input("Please enter a valid filepath: ")
-                file_path = os.path.abspath(user_path)
+                if "/data/" in  user_path:
+                    file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', user_path.replace("/data/","")))
+                    print(file_path)
+                else:
+                    file_path = os.path.abspath(user_path)
                 check_for_file(file_path)
                 if check_for_file(file_path):
                     answers = open(file_path, "r").read()
@@ -28,6 +33,40 @@ def get_attack_input() -> str:
                 answers = input("Please enter your attack prompt here: ")
 
     return answers
+
+def encoding_layer(attacks) -> str:
+    auto_encode = input("\nWould you like to encode the inputs?\n1. Yes, translate to a language\n2. Yes, translate to Morse Code\n3. No, keep input raw\nPlease enter 1-3, here: ")
+    match auto_encode:
+        case "1":
+            return auto_translate_language(attacks)
+    return attacks
+
+def auto_translate_language(attacks):
+    language = input("Select a language:\n1. Italian\n2. Chinese \n3. Custom\nPlease enter 1-3, here: ")
+    match language:
+        case "1":
+            lang = "it"
+        case "2":
+            lang = "zh"
+        case "3":
+            lang = input("Please enter the languages 2 letter ISO 639 code: ")
+        case _:
+            print("Invalid input, using Italian")
+            lang = "it"
+    for attack_num in range(len(attacks)):
+        translator = Translator(to_lang=lang)
+        translation = translator.translate(attacks[attack_num])
+        print(translation)
+        attacks[attack_num] = translation.replace("\'", "\\\'")
+    write_to_file = input("Finished translating, write file to database under for future use?\ny or n: ")
+    match write_to_file:
+        case "y":
+            file_path = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '..', 'data', f'forbidden_questions_{lang}.csv'))
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(attacks))
+            print("File saved.")
+    return attacks
 
 def check_for_file(path):
     try:
@@ -48,7 +87,7 @@ def check_for_file(path):
 def perform_attack(filename, attack_input):
     prompt_split = attack_input.split(" | ")
     if len(prompt_split) != 2:
-        prompt = "First"
+        prompt = "First,"
     else:
         prompt = prompt_split[1]
 
@@ -72,7 +111,7 @@ def perform_attack(filename, attack_input):
     pya.hotkey('ctrl', 'a')
     pya.write(attack_template,interval=0.01)
     pya.press(["left","space"])
-    time.sleep(5)
+    time.sleep(10)
     pya.press("tab")
     with pya.hold("shift"):
         pya.press(["home", "right", "right", "right", "right", "right", "right", "right", "right", "right", "right"])
@@ -86,12 +125,17 @@ def perform_attack(filename, attack_input):
 
 
 attacks = get_attack_input().split("\n")
+attacks = encoding_layer(attacks)
 
-results = []
-for attack in attacks:
-    time.sleep(8)
-    results.append(perform_attack("level_2_attack_template.txt",attack))
+print("\nAttack is ready to execute. After you press enter, you will have 5 seconds to switch to your attack window.")
+input("Press enter to continue.")
 
-# prompt_for_answer()
-print(results)
+time.sleep(5)
+
+with open("output.csv", "w", encoding="utf-8") as f:
+    for attack in attacks:
+        result = perform_attack("level_2_attack_template.txt",attack)
+        f.write(f"{result}\n")
+        print(result)
+
 
