@@ -51,23 +51,39 @@ def load_questions_from_csv():
             questions.append(row[0])
         return questions
 
+def load_level2_words():
+    words = {}
+    with open("data/level2_words.csv", encoding="utf-8") as f:
+        for row in csv.reader(f):
+            words[row[0]] = row[1]
+    return words
+
 if __name__ == '__main__':
     questions = load_questions_from_csv()
     results = []
+    words = load_level2_words()
 
     for question in questions[:2]:
-        prompt = make_levelOne(question)
-        text,refused = ask_openai("gpt-4o-mini", prompt)
-        results.append({
-            "question": question,
-            "prompt": prompt,
-            "response": text,
-            "refused": refused
-        })
+        for level in[1,2]:
+            if level == 1:
+                prompt = make_levelOne(question)
+            else:
+                prompt = make_levelTwo(question, words[question])
 
-        print("QUESTION:", question)
-        print("REFUSED:", refused)
-        print(text)
-        print("----------------")
+            text, refused = ask_openai("gpt-4o-mini", prompt)
+            results.append({
+                "question": question,
+                "level": level,
+                "prompt": prompt,
+                "response": text,
+                "refused": refused
+            })
+
+            print("QUESTION:", question)
+            print("LEVEL:", level)
+            print("REFUSED:", refused)
+            print(text)
+            print("----------------")
+
     with open("replication/results.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
