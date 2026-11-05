@@ -62,31 +62,33 @@ if __name__ == '__main__':
     questions = load_questions_from_csv()
     results = []
     words = load_level2_words()
-    trials = 2
+    trials = 1
+    models = ["gpt-4o-mini", "gpt-4o", "gpt-6-astra"]
+    for model in models:
+        for trial in range(1, trials + 1):
+            for question in questions[:2]:
+                for level in[1,2]:
+                    if level == 1:
+                        prompt = make_levelOne(question)
+                    else:
+                        prompt = make_levelTwo(question, words[question])
 
-    for trial in range(1, trials + 1):
-        for question in questions[:2]:
-            for level in[1,2]:
-                if level == 1:
-                    prompt = make_levelOne(question)
-                else:
-                    prompt = make_levelTwo(question, words[question])
-
-                text, refused = ask_openai("gpt-4o-mini", prompt)
-                results.append({
-                    "question": question,
-                    "level": level,
-                    "prompt": prompt,
-                    "response": text,
-                    "refused": refused,
-                    "trial": trial
-                })
-
-                print("QUESTION:", question)
-                print("LEVEL:", level)
-                print("REFUSED:", refused)
-                print(text)
-                print("----------------")
+                    text, refused = ask_openai(model, prompt)
+                    results.append({
+                        "question": question,
+                        "model": model,
+                        "level": level,
+                        "prompt": prompt,
+                        "response": text,
+                        "refused": refused,
+                        "trial": trial
+                    })
+                    print("MODEL:", model)
+                    print("QUESTION:", question)
+                    print("LEVEL:", level)
+                    print("REFUSED:", refused)
+                    print(text)
+                    print("----------------")
 
     with open("replication/results.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
