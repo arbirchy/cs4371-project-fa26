@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 import csv
 import json
+import sys
 
 load_dotenv()
 client = OpenAI()
@@ -60,11 +61,11 @@ def load_level2_words():
 
 if __name__ == '__main__':
     questions = load_questions_from_csv()
-    results = []
     words = load_level2_words()
     trials = 1
-    models = ["gpt-4o-mini", "gpt-4o", "gpt-6-astra"]
+    models = sys.argv[1:]
     for model in models:
+        results = []
         for trial in range(1, trials + 1):
             for question in questions[:2]:
                 for level in[1,2]:
@@ -89,6 +90,5 @@ if __name__ == '__main__':
                     print("REFUSED:", refused)
                     print(text)
                     print("----------------")
-
-    with open("replication/results.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
+                    with open(f"replication/results_{model}.json", "w", encoding="utf-8") as f:
+                        json.dump(results, f, indent=2)
