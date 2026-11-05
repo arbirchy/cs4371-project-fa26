@@ -1,0 +1,3 @@
+[submodule "Morse_Code_Translator"]
+	path = Morse_Code_Translator
+	url = https://github.com/MercuryRuane/Morse_Code_Translator.git
