@@ -30,8 +30,13 @@ if __name__ == "__main__":
     with open(sys.argv[1], encoding="utf-8") as f:
         results = json.load(f)
 
+    out_path = sys.argv[1].replace(".json", "_judged.json")
+
     for r in results:
-        verdict = judge(r["question"], r["response"])
-        print("LEVEL: ", r["level"], " | VERDICT: ", verdict)
+        r["verdict"] = judge(r["question"], r["response"])
+        print("MODEL:", r["model"], "| LEVEL:", r["level"], "| VERDICT:", r["verdict"])
         print(r["response"][:100])
         print("------------")
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)

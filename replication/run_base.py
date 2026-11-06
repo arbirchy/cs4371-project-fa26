@@ -62,12 +62,12 @@ def load_level2_words():
 if __name__ == '__main__':
     questions = load_questions_from_csv()
     words = load_level2_words()
-    trials = 1
+    trials = 5
     models = sys.argv[1:]
     for model in models:
         results = []
         for trial in range(1, trials + 1):
-            for question in questions[:2]:
+            for question in questions:
                 for level in[1,2]:
                     if level == 1:
                         prompt = make_levelOne(question)
