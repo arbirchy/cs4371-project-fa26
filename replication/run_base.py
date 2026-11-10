@@ -65,6 +65,10 @@ if __name__ == '__main__':
     trials = 5
     models = sys.argv[1:]
     for model in models:
+        path = f"replication/results_initial/results_{model}.json"
+        if os.path.exists(path):
+            print("Already have results for model", model, "skipping :)")
+            continue
         results = []
         for trial in range(1, trials + 1):
             for question in questions:
@@ -90,5 +94,5 @@ if __name__ == '__main__':
                     print("REFUSED:", refused)
                     print(text)
                     print("----------------")
-                    with open(f"replication/results_{model}.json", "w", encoding="utf-8") as f:
+                    with open(path, "w", encoding="utf-8") as f:
                         json.dump(results, f, indent=2)

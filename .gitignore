@@ -1,5 +1,5 @@
-# result files
-replication/results*.json
+# editor settings
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
