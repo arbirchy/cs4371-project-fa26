@@ -1,4 +1,5 @@
 from openai import OpenAI
+from anthropic import Anthropic
 import os
 from dotenv import load_dotenv
 import csv
@@ -6,11 +7,32 @@ import json
 import sys
 
 load_dotenv()
-client = OpenAI()
+openai_client = OpenAI()
+claude_client = Anthropic()
+
+def ask_claude(model, prompt):
+    message = claude_client.messages.create(
+        model=model,
+        max_tokens=16000,
+        system="Complete the following code.",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    if message.stop_reason == "refusal":
+        return "", True
+
+    text = ""
+    for block in message.content:
+        if block.type == "text":
+            text += block.text
+
+    return text.strip(), False
 
 def ask_openai(model, prompt):
 
-    completion = client.chat.completions.create(
+    completion = openai_client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": "Complete the following code."},
@@ -78,7 +100,10 @@ if __name__ == '__main__':
                     else:
                         prompt = make_levelTwo(question, words[question])
 
-                    text, refused = ask_openai(model, prompt)
+                    if model.startswith("claude"):
+                        text, refused = ask_claude(model, prompt)
+                    else:
+                        text, refused = ask_openai(model, prompt)
                     results.append({
                         "question": question,
                         "model": model,
