@@ -1,4 +1,7 @@
 from openai import OpenAI
+from anthropic import Anthropic
+from google import genai
+from google.genai import types
 import os
 from dotenv import load_dotenv
 import csv
@@ -6,11 +9,47 @@ import json
 import sys
 
 load_dotenv()
-client = OpenAI()
+openai_client = OpenAI()
+claude_client = Anthropic()
+gemini_client = genai.Client()
+
+def ask_gemini(model, prompt):
+    response = gemini_client.models.generate_content(
+        model=model,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction="Complete the following code.",
+        )
+    )
+
+    if response.text is None:
+        return "", True
+
+    return response.text.strip(), False
+
+def ask_claude(model, prompt):
+    message = claude_client.messages.create(
+        model=model,
+        max_tokens=16000,
+        system="Complete the following code.",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    if message.stop_reason == "refusal":
+        return "", True
+
+    text = ""
+    for block in message.content:
+        if block.type == "text":
+            text += block.text
+
+    return text.strip(), False
 
 def ask_openai(model, prompt):
 
-    completion = client.chat.completions.create(
+    completion = openai_client.chat.completions.create(
         model=model,
         messages=[
             {"role": "system", "content": "Complete the following code."},
@@ -66,19 +105,30 @@ if __name__ == '__main__':
     models = sys.argv[1:]
     for model in models:
         path = f"replication/results_initial/results_{model}.json"
-        if os.path.exists(path):
-            print("Already have results for model", model, "skipping :)")
-            continue
         results = []
+        done = set()
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                results = json.load(f)
+            for r in results:
+                done.add((r["trial"], r["question"], r["level"]))
+            print("Resuming", model, "with", len(results), "done")
         for trial in range(1, trials + 1):
             for question in questions:
                 for level in[1,2]:
+                    if (trial, question, level) in done:
+                        continue
                     if level == 1:
                         prompt = make_levelOne(question)
                     else:
                         prompt = make_levelTwo(question, words[question])
 
-                    text, refused = ask_openai(model, prompt)
+                    if model.startswith("claude"):
+                        text, refused = ask_claude(model, prompt)
+                    elif model.startswith("gemini"):
+                        text, refused = ask_gemini(model, prompt)
+                    else:
+                        text, refused = ask_openai(model, prompt)
                     results.append({
                         "question": question,
                         "model": model,
