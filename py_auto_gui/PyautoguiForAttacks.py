@@ -1,11 +1,15 @@
 import asyncio
+from fileinput import filename
 
 import pyautogui as pya
 import time
 import pyperclip
 import os
 from translate import Translator
-# from googletrans import Translator
+import sys
+
+sys.path.append('../')
+from Morse_Code_Translator import morsecode
 
 def get_attack_input() -> str:
     print("Welcome to the pyautogui script. This script can automatically run attacks against LCCT tools.\nLet's set you up. First, how will you be entering your attacks?")
@@ -39,6 +43,12 @@ def encoding_layer(attacks) -> str:
     match auto_encode:
         case "1":
             return auto_translate_language(attacks)
+        case "2":
+            for i_attack in range(len(attacks)):
+                attacks[i_attack] = morsecode.encrypt(attacks[i_attack].upper())
+                print("Morse: ", attacks[i_attack])
+            offer_output_file("forbidden_questions_morse.csv", "\n".join(attacks),"Would you like to save this file for future use?\n y or n: ")
+            return attacks
     return attacks
 
 def auto_translate_language(attacks):
@@ -58,13 +68,17 @@ def auto_translate_language(attacks):
         translation = translator.translate(attacks[attack_num])
         print(translation)
         attacks[attack_num] = translation.replace("\'", "\\\'")
-    write_to_file = input("Finished translating, write file to database under for future use?\ny or n: ")
+    offer_output_file(f'forbidden_questions_{lang}.csv',"\n".join(attacks), "Finished translating, write file to database under for future use?\ny or n: ")
+    return attacks
+
+def offer_output_file(filename, content, msg):
+    write_to_file = input(msg)
     match write_to_file:
         case "y":
             file_path = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), '..', 'data', f'forbidden_questions_{lang}.csv'))
+                os.path.join(os.path.dirname(__file__), '..', 'data', f'{filename}'))
             with open(file_path, "w", encoding="utf-8") as f:
-                f.write("\n".join(attacks))
+                f.write(content)
             print("File saved.")
     return attacks
 
@@ -84,11 +98,9 @@ def check_for_file(path):
         print("File not found!")
     return False
 
-def perform_attack(filename, attack_input):
+def perform_attack_level_2(filename, attack_input, prompt):
     prompt_split = attack_input.split(" | ")
-    if len(prompt_split) != 2:
-        prompt = "First,"
-    else:
+    if len(prompt_split) == 2:
         prompt = prompt_split[1]
 
     keyword_split = prompt_split[0].split("*")
@@ -123,9 +135,34 @@ def perform_attack(filename, attack_input):
     else:
         return ""
 
+def perform_attack_level_1(attack_input, prompt):
+    pya.hotkey('ctrl', 'a')
+    pya.write(attack_input.replace(" ", "_").lower() + f" = \"{prompt}\"", interval=0.01)
+    pya.press(["left", "space"])
+    time.sleep(10)
+    pya.press("tab")
+    with pya.hold("shift"):
+        pya.press("home")
+        with pya.hold("ctrl"):
+            pya.press(["right", "right"])
+        pya.press(["right","right"])
+    pya.hotkey('ctrl', 'c')
+    time.sleep(.01)
+    s = pyperclip.paste()
+    if s.replace(" ", "") != prompt.replace(" ", ""):
+        return s
+    else:
+        return ""
 
 attacks = get_attack_input().split("\n")
 attacks = encoding_layer(attacks)
+
+decode = input("\nShould the output be decoded?\n1. No, plain text only\n2. Yes, translate back to English\n3. Yes, decrypt morse code\nPlease enter 1-3, here: ")
+
+prompt = input("What prompt should be used: ")
+if prompt == "": prompt = "First,"
+
+attack_type = input("What attack type?\n1. Level 1 attack\n2. Level 2 attack\n")
 
 print("\nAttack is ready to execute. After you press enter, you will have 5 seconds to switch to your attack window.")
 input("Press enter to continue.")
@@ -134,8 +171,28 @@ time.sleep(5)
 
 with open("output.csv", "w", encoding="utf-8") as f:
     for attack in attacks:
-        result = perform_attack("level_2_attack_template.txt",attack)
-        f.write(f"{result}\n")
-        print(result)
+        match attack_type:
+            case "1":
+                raw_result = perform_attack_level_1(attack,prompt)
+            case _:
+                raw_result = perform_attack_level_2("level_2_attack_template.txt", attack, prompt)
+        match decode:
+            case "2":
+                try:
+                    # print("de translate")
+                    translator = Translator(to_lang="en", email="tnfallavol@gmail.com")
+                    decrypted_result = translator.translate(raw_result)
+                except:
+                    decrypted_result = ""
+            case "3":
+                try:
+                    # print("morse")
+                    decrypted_result = morsecode.decrypt(raw_result)
+                except:
+                    decrypted_result = ""
+            case _:
+                decrypted_result = raw_result
+        f.write(f"{attack}~~{raw_result}~{decrypted_result}\n")
+        print(f"{attack},{raw_result},{decrypted_result}\n")
 
 
