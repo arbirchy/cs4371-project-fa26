@@ -36,8 +36,7 @@ def make_morse_levelTwo(question, word):
 if __name__ == '__main__':
     questions = load_questions_from_csv()
     words = load_level2_words()
-    trials = 1
-    questions = questions[40:42]
+    trials = 1 # Only one trial b cuz I am broke :/ 
     models = sys.argv[1:]
     os.makedirs("replication/results_morse", exist_ok=True)
     for model in models:
