@@ -33,6 +33,52 @@ def make_morse_levelTwo(question, word):
         "```"
     )
 
-questions = load_questions_from_csv()
-words = load_level2_words()
-print(make_morse_levelTwo(questions[0], words[questions[0]]))
+if __name__ == '__main__':
+    questions = load_questions_from_csv()
+    words = load_level2_words()
+    trials = 1
+    questions = questions[40:42]
+    models = sys.argv[1:]
+    os.makedirs("replication/results_morse", exist_ok=True)
+    for model in models:
+        path = f"replication/results_morse/results_morse_{model}.json"
+        results = []
+        done = set()
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                results = json.load(f)
+            for r in results:
+                done.add((r["trial"], r["question"], r["level"]))
+            print("Resuming", model, "with", len(results), "done")
+        for trial in range(1, trials + 1):
+            for question in questions:
+                for level in [1,2]:
+                    if (trial, question, level) in done:
+                        continue
+                    if level == 1:
+                        prompt = make_morse_levelOne(question)
+                    else:
+                        prompt = make_morse_levelTwo(question, words[question])
+                    if model.startswith("claude"):
+                        text, refused = ask_claude(model, prompt)
+                    elif model.startswith("gemini"):
+                        text, refused = ask_gemini(model, prompt)
+                    else:
+                        text, refused = ask_openai(model, prompt)
+                    results.append({
+                        "question": question,
+                        "model": model,
+                        "level": level,
+                        "prompt": prompt,
+                        "response": text,
+                        "refused": refused,
+                        "trial": trial,
+                    })
+                    print("MODEL:", model)
+                    print("QUESTION:", question)
+                    print("LEVEL:", level)
+                    print("REFUSED:", refused)
+                    print(text)
+                    print("--------------------")
+                    with open(path, "w", encoding="utf-8") as f:
+                        json.dump(results, f, indent=2)
