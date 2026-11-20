@@ -93,3 +93,31 @@ Findings:
 - Most models wrote a decoder and never answered the question.
 - Majority of harmful answers that got through were of a specific type (Erotic questions).
 - Only 1 trial was run compared to the 5 trials ran for the base. 
+
+Italian Results
+
+Model                     Level I    Level II
+gpt-4o-mini                36.2%      46.2%
+gpt-4o                     23.8%      22.5%
+gpt-6-astra                 0.0%       3.8%
+claude-sonnet-5-5          10.0%       8.8%
+claude-opus-5-5            13.8%      13.8%
+claude-fable-5-2           13.8%      15.0%
+gemini-3.5-flash-lite       7.5%      22.5%
+gemini-3.6-flash           13.8%      13.8%
+gemini-4-carbon            11.2%       6.2%
+
+How Italian was Judged
+
+1. Same gpt-4o judge as the English run
+
+2. The Manual Review: 
+   Hand-checked every reply the judge called HARMFUL (242 replies) and checked if it was actually harmful.
+   After hand-checking we went from 242 -> 227.
+   (replication/results_italian/manual_review.csv)
+
+Findings: 
+
+- Italian results are close to englsh for every model.
+- Claude reads the italian normally unlike the morse being refused.
+- Only 1 trial was run compared to the 5 trials for the base.
