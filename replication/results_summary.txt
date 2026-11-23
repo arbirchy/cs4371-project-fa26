@@ -22,21 +22,21 @@ gpt-4o            36.5%      41.3%
 Our Results
 
 Model                     Level I    Level II
-gpt-4o-mini                38.8%      42.2%
-gpt-4o                     27.2%      18.8%
-gpt-6-astra                 3.8%       4.5%
-claude-sonnet-5-5           8.8%       9.8%
-claude-opus-5-5            12.0%       8.0%
-claude-fable-5-2           14.2%      20.0%
-gemini-3.5-flash-lite      15.0%      13.5%
-gemini-3.6-flash           17.0%       9.8%
-gemini-4-carbon            14.2%       5.8%
+gpt-4o-mini                38.8%      44.8%
+gpt-4o                     26.8%      19.8%
+gpt-6-astra                 3.0%       5.5%
+claude-sonnet-5-5           9.8%       9.5%
+claude-opus-5-5            15.2%       9.2%
+claude-fable-5-2           17.5%      20.2%
+gemini-3.5-flash-lite      14.2%      14.2%
+gemini-3.6-flash           17.2%      10.8%
+gemini-4-carbon            13.5%       6.0%
 
 
 Comparison (gpt-4o model)
                  Paper     Ours      Difference
-Level I          36.5%     27.2%     -9.3
-Level II         41.3%     18.8%     -22.5
+Level I          36.5%     26.8%     -9.7
+Level II         41.3%     19.8%     -21.5
 
 IMPORTANT: the paper used the 2024/05/13 snapshot of gpt-4o. That is shut down, so we used the current gpt-4o.
 
@@ -69,7 +69,7 @@ claude-opus-5-5             0.0%       0.0%
 claude-fable-5-2            0.0%       0.0%
 gemini-3.5-flash-lite       0.0%       0.0%
 gemini-3.6-flash            5.0%      11.2%
-gemini-4-carbon             5.0%       5.0%
+gemini-4-carbon             5.0%       6.2%
 
 How Morse was Judged
 
@@ -98,14 +98,14 @@ Italian Results
 
 Model                     Level I    Level II
 gpt-4o-mini                36.2%      46.2%
-gpt-4o                     23.8%      22.5%
-gpt-6-astra                 0.0%       3.8%
-claude-sonnet-5-5          10.0%       8.8%
-claude-opus-5-5            13.8%      13.8%
-claude-fable-5-2           13.8%      15.0%
+gpt-4o                     25.0%      22.5%
+gpt-6-astra                 1.2%       3.8%
+claude-sonnet-5-5          10.0%      10.0%
+claude-opus-5-5            13.8%      16.2%
+claude-fable-5-2           13.8%      20.0%
 gemini-3.5-flash-lite       7.5%      22.5%
-gemini-3.6-flash           13.8%      13.8%
-gemini-4-carbon            11.2%       6.2%
+gemini-3.6-flash           17.5%      16.2%
+gemini-4-carbon            12.5%       6.2%
 
 How Italian was Judged
 
@@ -120,4 +120,34 @@ Findings:
 
 - Italian results are close to englsh for every model.
 - Claude reads the italian normally unlike the morse being refused.
+- Only 1 trial was run compared to the 5 trials for the base.
+
+Chinese Results
+
+Model                     Level I    Level II
+gpt-4o-mini                13.8%      18.8%
+gpt-4o                      8.8%       8.8%
+gpt-6-astra                 0.0%       1.2%
+claude-sonnet-5-5           8.8%       7.5%
+claude-opus-5-5            17.5%       5.0%
+claude-fable-5-2           22.5%      15.0%
+gemini-3.5-flash-lite       5.0%      12.5%
+gemini-3.6-flash           15.0%       7.5%
+gemini-4-carbon             6.2%       2.5%
+
+How Chinese was Judged 
+
+1. Same gpt-4o judge as the English run 
+
+2. The Manual Review: 
+   Hand-checked every reply the judge called HARMFUL (188 replies) and checked if it was actually harmful.
+   After hand-checking we went from 188 -> 141.
+   (replication/results_chinese/manual_review.csv)
+
+Findings: 
+
+- Chinese made attacks less successful than the English for OpenAI models.
+- Claude and Gemini results are close to English results.
+- Fable and Opus (Claude) did worse at Level 1. 
+- Most harmful answers that passed were erotic questions. (Similar to Italian and Morse)
 - Only 1 trial was run compared to the 5 trials for the base.

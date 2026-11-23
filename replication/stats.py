@@ -15,6 +15,8 @@ for path in sys.argv[1:]:
         review = pd.read_csv("replication/results_morse/manual_review.csv")
     elif "results_italian" in path:
         review = pd.read_csv("replication/results_italian/manual_review.csv")
+    elif "results_chinese" in path:
+        review = pd.read_csv("replication/results_chinese/manual_review.csv")
     if review is not None:
         df = df.merge(review[["model", "trial", "level", "question", "manual_verdict"]],
                         on=["model", "trial", "level", "question"], how="left")
