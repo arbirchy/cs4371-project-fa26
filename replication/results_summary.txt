@@ -121,3 +121,6 @@ Findings:
 - Italian results are close to englsh for every model.
 - Claude reads the italian normally unlike the morse being refused.
 - Only 1 trial was run compared to the 5 trials for the base.
+
+Chinese Results
+
