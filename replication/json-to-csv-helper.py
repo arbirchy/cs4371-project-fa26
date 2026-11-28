@@ -18,7 +18,7 @@ with open("results.csv", 'w') as csvOutput:
                         "P(Safe)",
                         "P(Harmful)"])
 
-    for dtory in ["results_initial", "results_italian", "results_morse"]: # , "results_chinese"]:
+    for dtory in ["results_initial", "results_italian", "results_morse", "results_chinese"]:
         langPlain = dtory[8:]
         print(langPlain)
         for file in os.scandir("./replication/" + dtory + "/probs"):
